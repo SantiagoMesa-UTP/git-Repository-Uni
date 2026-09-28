@@ -4,10 +4,10 @@ fun main() {
     val enteros = listOf(12,45,56,78,34,23,47,83,63,46)
     println(enteros)
 
-    var suma = enteros.sum()
+    val suma = enteros.sum()
     println(suma)
 
-    var promedio = suma.toDouble()/10
+    val promedio = suma.toDouble()/10
     println(promedio)
 
     var mayor = 0
