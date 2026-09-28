@@ -1,6 +1,8 @@
+package exercise01
+
 fun main() {
     val numero1 = 10.0
-    val numero2 = 0.0
+    val numero2 = 4.0
     val operacion = '/'
 
     val resultado: Double? = when (operacion) {
@@ -20,8 +22,8 @@ fun main() {
     if (resultado != null) {
         println("Resultado: $resultado")
     } else if (operacion == '/' && numero2 == 0.0) {
-        println("Error: no se puede dividir entre cero")
+        println("No se puede dividir entre cero")
     } else {
-        println("Operación no válida")
+        println("Operación invalida")
     }
 }
