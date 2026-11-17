@@ -1,38 +1,71 @@
 # Inventario Industrial
 
 Estudiante: Santiago Mesa
-Asignatura: Aplicativos Móviles (Kotlin + Jetpack Compose)
+Asignatura: Aplicativos Móviles (Kotlin + Jetpack Compose + Room)
 
 ## Negocio
 
-Empresa que maneja un almacén de materiales industriales (cables, protecciones eléctricas, aislantes). Cada material tiene código, descripción, unidad de medida, precio, fabricante, stock y utilidad.
+Empresa que maneja un almacén de materiales industriales (cables, protecciones eléctricas, aislantes). Cada material tiene código, descripción, unidad, precio, fabricante, stock y utilidad.
 
-## Objetivo de la aplicación
+## Objetivo
 
-Consultar las existencias del almacén, solicitar materiales respetando el stock disponible y registrar el ingreso de nuevos pedidos al almacén.
+Consultar y administrar las existencias del almacén, solicitar materiales respetando el stock y llevar el historial de entradas y salidas de cada material. Los datos se guardan en el dispositivo con Room.
 
-## Pantallas (Navigation Compose)
+## Arquitectura
+
+```
+app/src/main/java/com/example/inventarioindustrial
+├── model/           Material, Movimiento, estados y filtros de stock
+├── data/
+│   ├── local/       MaterialEntidad, MovimientoEntidad, DAOs e InventarioBaseDatos (Room)
+│   ├── repository/  InventarioRepositorio (convierte entidades a modelos y aplica las reglas)
+│   └── MaterialesIniciales.kt   datos de la primera ejecución
+├── viewmodel/       InventarioViewModel (StateFlow) y su Factory
+├── ui/
+│   ├── screens/     PantallaInicio, PantallaAlmacen, PantallaSolicitud, PantallaDetalleMaterial
+│   ├── components/  tarjetas, formulario, diálogos, filtros y estadísticas
+│   └── theme/       Color, Theme y Type (estilo Facebook con Material 3)
+└── MainActivity.kt  configura Room, el ViewModel y Navigation Compose
+```
+
+## Room
+
+- **Entidades relacionadas:** `MaterialEntidad` (tabla `materiales`) y `MovimientoEntidad` (tabla `movimientos`). Cada movimiento pertenece a un material con clave foránea y se borra junto con él.
+- **CRUD completo sobre `MaterialEntidad`:** crear, consultar, actualizar y eliminar.
+- **Flow / StateFlow:** los DAOs devuelven `Flow` y el ViewModel los expone como `StateFlow` que la interfaz observa.
+- **Persistencia:** los 8 materiales iniciales se cargan una sola vez al crear la base de datos; todo cambio posterior se conserva al cerrar y volver a abrir la app.
+
+## Pantallas
 
 | Pantalla | Propósito |
 |---|---|
-| **Inicio** | Resumen de existencias (cantidad de materiales, stock bajo y sin stock), botón "Solicitar al almacén", categorías y lista de materiales con "Ver detalles" (descripción, código, precio, fabricante, stock y utilidad). Solo consulta. |
-| **Almacén** | Búsqueda, filtro por categoría, botones Agregar / - / + por material y botón "Gestionar stock". |
-| **Solicitud** | Materiales elegidos con sus cantidades, "Confirmar pedido" (vacía la solicitud y muestra un aviso) y "Vaciar solicitud". |
+| **Inicio** | Estadísticas del almacén, botón "Solicitar al almacén", filtros por categoría y por estado de stock, lista de materiales y botón "Nuevo material". |
+| **Detalle** | Datos completos del material, botones Editar y Eliminar, e historial de movimientos. |
+| **Almacén** | Búsqueda, filtro por categoría, Agregar / - / + por material y "Gestionar stock". |
+| **Solicitud** | Materiales elegidos y "Confirmar pedido". |
 
-## Funcionalidades interactivas
+## Funcionalidades nuevas y cómo probarlas
 
-1. **Cantidades y búsqueda (trabajada en clase).** En Almacén se busca por descripción o código y cada material tiene Agregar / - / + limitado por el stock. El contador de la barra inferior muestra cuántos materiales hay en la solicitud y la pantalla Solicitud muestra las cantidades elegidas.
-2. **Filtro por categorías (nueva).** Botones tipo pill (Cables, Protección, Aislantes) que filtran la lista en Inicio y en Almacén (donde se combinan con la búsqueda).
-3. **Gestión de stock (nueva).** En Almacén, "Gestionar stock" abre un formulario con validación para elegir un material y registrar la cantidad que ingresa con un nuevo pedido. El stock se actualiza y se reflejan los cambios en las tarjetas de Inicio (stock bajo y sin stock) y en los límites de la solicitud.
+1. **Registro.** Inicio -> "+ Nuevo material" -> completar el formulario (todos los campos son obligatorios, el precio debe ser mayor a 0 y el código no puede repetirse) -> "Guardar material". Aparece en la lista.
+2. **Consulta.** Inicio -> tocar un material o "Ver detalles". Se abre su pantalla de detalle con la ficha completa y su historial de entradas y salidas.
+3. **Edición.** Detalle -> "Editar" -> cambiar por ejemplo el precio o el stock -> "Guardar cambios". La ficha se actualiza al instante.
+4. **Eliminación.** Detalle -> "Eliminar" -> confirmar. El material y su historial desaparecen.
+5. **Filtro por estado de stock y estadísticas.** Inicio -> las tarjetas muestran total, stock bajo y sin stock calculados desde Room, y los botones Todos / Stock bajo / Sin stock filtran la lista.
 
-Además, "Ver detalles" abre un cuadro con la ficha completa del material y "Confirmar pedido" muestra el aviso de solicitud realizada.
+Funciones que ya existían y ahora se guardan en Room:
+
+- **Gestionar stock** (Almacén): registra el ingreso de un pedido, sube el stock y deja una entrada en el historial.
+- **Confirmar pedido** (Solicitud): descuenta el stock y deja una salida en el historial.
+- **Búsqueda, filtro por categoría y cantidades** con el stock real.
+
+Para comprobar la persistencia: registrar un material o un ingreso de stock, cerrar la aplicación por completo y volver a abrirla; los cambios se conservan.
 
 ## Identidad visual
 
-Estilo inspirado en Facebook con Material 3: azul de acento, fondo gris claro, tarjetas blancas con esquinas suaves, botones secundarios grises, botones tipo pill, barra inferior con iconos azules e insignia roja, y tema oscuro. Definido en `Color.kt`, `Theme.kt` y `Type.kt`.
+Estilo inspirado en Facebook con Material 3, definido en `Color.kt`, `Theme.kt` y `Type.kt`, e ícono de lanzamiento propio (estante de almacén con cajas sobre fondo azul).
 
 ## Cómo ejecutar
 
-1. Abrir la carpeta `InventarioIndustrial` en Android Studio.
-2. Esperar a que Gradle sincronice.
-3. Seleccionar un emulador o dispositivo (minSdk 24) y pulsar Run.
+1. Abrir la carpeta `InventarioIndustrial` en Android Studio y esperar la sincronización de Gradle.
+2. Seleccionar un emulador o dispositivo (minSdk 26) y pulsar Run.
+3. APK de prueba: `InventarioIndustrial/apk/InventarioIndustrial-debug.apk` (se regenera con `./gradlew assembleDebug`).

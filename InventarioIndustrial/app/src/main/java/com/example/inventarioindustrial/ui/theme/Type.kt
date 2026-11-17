@@ -6,8 +6,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Tipografía sans-serif limpia, con títulos en negrita como en Facebook
-val Typography = Typography(
+// Letra sans-serif limpia, con títulos en negrita como en Facebook
+val Tipografia = Typography(
     headlineMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
@@ -50,11 +50,10 @@ val Typography = Typography(
         fontSize = 15.sp,
         lineHeight = 20.sp
     ),
-    // Códigos de material en monoespaciada, como en una etiqueta de bodega
     labelMedium = TextStyle(
-        fontFamily = FontFamily.Monospace,
+        fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Medium,
-        fontSize = 13.sp,
+        fontSize = 12.sp,
         lineHeight = 16.sp
     ),
     labelSmall = TextStyle(
@@ -64,4 +63,12 @@ val Typography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.4.sp
     )
+)
+
+// Los códigos de material usan letra monoespaciada, como una etiqueta de bodega
+val EstiloCodigo = TextStyle(
+    fontFamily = FontFamily.Monospace,
+    fontWeight = FontWeight.Medium,
+    fontSize = 13.sp,
+    lineHeight = 16.sp
 )
